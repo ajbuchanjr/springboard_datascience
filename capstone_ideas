@@ -1,0 +1,13 @@
+Anthony Buchanan - Capstone Project Ideas, Foundations of Data Science
+
+1) - Educational Achievment and Covariate School Data 
+
+Using data from the Stanford Education Data Archive this project would review the district level average achievment data (scores in math and english) and the related covariate factors provided such as city vs urban, number of schools, student/teacher ratio, and demographic information. The goal would be to identify key predictive and relative factors in improving educational achievement.
+
+2) - Diversity in Films
+
+Much has been made of the lack of diversity in hollywood films. But is there an economic case for diversity? This project would use data from IMDB and various sources on diversity such as the Comprehensive Annenberg Report on Diversity to identify if films by more diverse are more profitable. 
+
+3) Social Media Moderation with Sentiment Analysis
+
+Using data from Reddit, an online community forum where users receive points known as karma if users like their posts, this project would aim to perform sentiment analysis on comments, categorizing them as negative, neutral and positive. The user's comment karma can be compared to identify trends and correlation to help indentify and lower the rank of negative users.
