@@ -1,6 +1,6 @@
 library(dplyr)
 library(tidyr)
-setwd("D:/Users/Anthony/Documents/Springboard")
+# setwd("D:/Users/Anthony/Documents/Springboard")
 refinetbl <- read.csv("refine_original.csv")
 stdnames <- c("philips", "akzo", "van houten", "unilever")
 refinetblnrm <- gsub("^.+ps$", stdnames[1], gsub("^ak.+$", stdnames[2], 
