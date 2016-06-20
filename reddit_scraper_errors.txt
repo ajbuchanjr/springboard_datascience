@@ -1,0 +1,35 @@
+Error in file(con, "r") : cannot open the connection
+In addition: Warning message:
+In file(con, "r") :
+  cannot open URL 'http://www.reddit.com/r/worldnews/comments/.json?&t=year&after=t1_d4g9cmm': HTTP status was '503 Service Unavailable'
+Error in file(con, "r") : cannot open the connection
+In addition: Warning message:
+In file(con, "r") :
+  cannot open URL 'http://www.reddit.com/r/worldnews/comments/.json?&t=year&after=t1_d4g8cdb': HTTP status was '503 Service Unavailable'
+Error in file(con, "r") : cannot open the connection
+In addition: Warning message:
+In file(con, "r") :
+  cannot open URL 'http://www.reddit.com/r/worldnews/comments/.json?&t=year&after=t1_d4g84hp': HTTP status was '503 Service Unavailable'
+Error in file(con, "r") : cannot open the connection
+In addition: Warning message:
+In file(con, "r") :
+  cannot open URL 'http://www.reddit.com/r/worldnews/comments/.json?&t=year&after=NA': HTTP status was '503 Service Unavailable'
+Error in file(con, "r") : cannot open the connection
+In addition: Warning message:
+In file(con, "r") :
+  cannot open URL 'http://www.reddit.com/r/worldnews/comments/.json?&t=year&after=t1_d4g924k': HTTP status was '503 Service Unavailable'
+Error in file(con, "r") : cannot open the connection
+In addition: Warning message:
+In file(con, "r") :
+  cannot open URL 'http://www.reddit.com/r/worldnews/comments/.json?&t=year&after=t1_d4g89km': HTTP status was '503 Service Unavailable'
+Error in file(con, "r") : cannot open the connection
+In addition: Warning message:
+In file(con, "r") :
+  cannot open URL 'http://www.reddit.com/r/worldnews/comments/.json?&t=year&after=t1_d4g7yrf': HTTP status was '503 Service Unavailable'
+ Show Traceback
+ 
+ Rerun with Debug
+ Error in file(con, "r") : cannot open the connection In addition: Warning message:
+In file(con, "r") :
+  cannot open URL 'http://www.reddit.com/r/worldnews/comments/.json?&t=year&after=t1_d4g7yrf': HTTP status was '503 Service Unavailable'
+> write.csv(total.data, paste("RedditYear",subreddit,"Comments.csv",sep=""))
