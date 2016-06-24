@@ -7,7 +7,7 @@ library(dplyr)
 library(R.utils)
 library(httr)
 library(httpuv)
-# setwd("C:/Users/abuchanan.NIMBUS")
+# setwd("D:/Users/Anthony/Documents/Springboard")
 RedditToken <- function(appscript, secretvalue) {
   # Loads Reddit OAuth2 tokens.
   #
@@ -24,9 +24,11 @@ RedditToken <- function(appscript, secretvalue) {
     access = "https://www.reddit.com/api/v1/access_token")
   app <- oauth_app("reddit", appscript, secretvalue)
   token <- oauth2.0_token(reddit, app, scope = c("read"), 
-    use_basic_auth = TRUE, user_agent("rdatapull v0.1 by rdata"))
+    use_basic_auth = TRUE, user_agent("rdatapull2 v0.2 by rdata"))
   return(token)
 }
+# Get the Reddit Token
+my.token <- RedditToken("gOfXlYcHrvrWTg", "secretvalue")
 LoadData <- function(url.val) {
   # Loads comment data from a given reddit url.
   #
@@ -36,34 +38,48 @@ LoadData <- function(url.val) {
   # Returns:
   #  A data fame with comments, including subreddit, created date
   #  author, score (total, up and down  votes), and comment text
-  my.token <- RedditToken("gOfXlYcHrvrWTg", "secretvalue")
   init.req <- GET(url.val, config(token = my.token), 
-    user_agent("rdatapull v0.1 by rdata"))
+    user_agent("rdatapull1 v0.2 by rdata"))
   init.req <- content(init.req, as = "text")
-  main.data <- fromJSON(init.req)
-  # Pause and try again on error
-  # if (class(main.data) == "try-error") {
-  #  Sys.sleep(10)
-  #  main.data <- fromJSON(readLines(url, warn = FALSE))
-  # }
-    before.link <- main.data[[2]]$before
-    after.link <- main.data[[2]]$after
-    main <- main.data[[2]]$children$data
-    reduced.main <- main[, c("subreddit","created","author","score",
+  main.data <- tryCatch({
+    fromJSON(init.req)
+    if(!is.atomic(main.data[[2]]))
+    {
+      before.link <- main.data[[2]]$before
+      after.link <- main.data[[2]]$after
+      main <- main.data[[2]]$children$data
+    }
+  }, error = function(e) {
+    cat("ERROR :",conditionMessage(e), "\n")
+    Sys.sleep(600)
+    })
+  
+  reduced.main <- tryCatch({ main[, c("subreddit","created","author","score",
                              "downs","ups","body")]
+  }, error = function(e) {
+    cat("ERROR :",conditionMessage(e), "\n")
+    reduced.main <- data.frame(subreddit = character(0), created = numeric(0), 
+     author = character(0), score = integer(0), downs = integer(0), 
+     ups = integer(0), body = character(0), after.link = character(0))
+  })
+  if(!is.atomic(reduced.main) && exists(after.link))
+  {  
     reduced.main$after.link <- after.link
+  }
     return(reduced.main)
 }
 subreddit <- "worldnews"
 url.start <- paste("https://oauth.reddit.com/r/",subreddit,
                    "/comments/.json?&t=year",sep="")
 total.data <- LoadData(url.start)
-while (!is.null(tail(total.data["after.link"],1))) {
-    url.next <- paste(url.start,"&after=", tail(total.data["after.link"],1)
-                       ,sep="")
+if(!"after.link" %in% colnames(total.data))
+{
+  total.data[,"after.link"] <- NA
+}
+  while (!is.null(tail(total.data["after.link"],1))) {
+    url.next <- paste(url.start,"&after=", tail(total.data["after.link"],1), sep="")
     total.data <- rbind_list(total.data, LoadData(url.next))
-    # write.table(total.data, paste("RedditYear", subreddit, "Comments.csv"), 
-    # row.names=F,na="NA",append=T, quote= FALSE, sep=",", col.names=F)
+    print(nrow(total.data))
   }
 write.csv(total.data, paste("RedditYear",subreddit,"Comments.csv",sep=""))
 View(total.data)
