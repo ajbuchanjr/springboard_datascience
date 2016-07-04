@@ -1,3 +1,5 @@
+# Author: Anthony J Buchanan
+# File Description: CHIS Data plotted 
 # Load all packages
 library(ggplot2)
 library(reshape2)
