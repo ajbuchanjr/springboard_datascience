@@ -29,7 +29,7 @@ RedditToken <- function(appscript, secretvalue) {
   return(token)
 }
 # Get the Reddit Token
-my.token <- RedditToken("gOfXlYcHrvrWTg", "0aAflGdXeKPiaDcq_uaPeFBa1oo")
+my.token <- RedditToken("appid", "secret")
 LoadData <- function(url.val) {
   # Loads comment data from a given reddit url.
   #
