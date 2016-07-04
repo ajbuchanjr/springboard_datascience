@@ -25,7 +25,7 @@ RedditToken <- function(appscript, secretvalue) {
     access = "https://www.reddit.com/api/v1/access_token")
   app <- oauth_app("reddit", appscript, secretvalue)
   token <- oauth2.0_token(reddit, app, scope = c("read"), 
-    use_basic_auth = TRUE, user_agent("rpulldata v0.3 by u/rdata"))
+    use_basic_auth = TRUE)
   return(token)
 }
 # Get the Reddit Token
@@ -40,24 +40,24 @@ LoadData <- function(url.val) {
   #  A data fame with comments, including subreddit, created date
   #  author, score (total, up and down  votes), and comment text
   init.req <- GET(url.val, config(token = my.token), 
-    user_agent("rpulldata v0.3 by u/rdata"))
+      user_agent("rpulldata v0.4 by /u/rdata"))
   init.req <- content(init.req, as = "text")
   main.data <- tryCatch({
     fromJSON(init.req)
-    if(!is.atomic(main.data[[2]]))
-    {
-      main <- main.data[[2]]$children$data
-      main["before"]<- main.data[[2]]$before
-      main["after"] <- main.data[[2]]$after
-      main["inserteddate"] <- Sys.time()
-    }
   }, error = function(e) {
     cat("ERROR :",conditionMessage(e), "\n")
-    Sys.sleep(600)
+    # Sys.sleep(600)
     })
+  if(!is.atomic(main.data[[2]]))
+  {
+    main <- main.data[[2]]$children$data
+    main["before"]<- main.data[[2]]$before
+    main["after"] <- main.data[[2]]$after
+    main["inserteddate"] <- Sys.time()
+  }
   
-  reduced.main <- tryCatch({ main[, c("id","subreddit","created","author","score",
-                             "downs","ups","body","after","inserteddate")]
+  reduced.main <- tryCatch({ main[, c("id","subreddit","created","author",
+    "score","downs","ups","body","after","inserteddate")]
   }, error = function(e) {
     cat("ERROR :",conditionMessage(e), "\n")
     reduced.main <- data.frame(id = character(0), subreddit = character(0), 
@@ -67,33 +67,53 @@ LoadData <- function(url.val) {
   })
     return(reduced.main)
 }
-subreddit <- "worldnews"
+WriteData <- function(dframe) {
+  # Writes comment data from a dataframe.
+  #
+  # Args:
+  #  dframe: The dataframe to checka and write
+  #
+  # Returns:
+  #  Number of rows in a data fame with comments not in the database, 
+  # including subreddit, created date, author, score (total, up and down votes),
+  # and comment text
+  idcheck <- dbGetQuery(devdb, paste("select id from Comments where id in (", 
+    paste("'",dframe$id,collapse="',",sep=""), "')",sep=""))
+  ret.data <- anti_join(dframe, idcheck, by="id")
+  if (nrow(ret.data) > 0)
+  {
+    dbWriteTable(devdb, name="Comments", ret.data, append = T, 
+                 overwrite = F)
+  }
+  return(nrow(ret.data))
+}
+subreddit <- "all"
 url.start <- paste("https://oauth.reddit.com/r/",subreddit,
-                     "/comments/.json?t=year",sep="")
+                     "/comments/.json?limit=100&t=year",sep="")
 # Database Stuff
 devdb <- dbConnect(RSQLServer::SQLServer(), server="localhost", port=1433,
                    properties=list(user="rdata", password="password"))
-commentstart <- dbGetQuery(devdb, "select top 1 id from Comments order by inserteddate DESC")
+commentstart <- dbGetQuery(devdb, 
+  "select top 1 id from Comments order by inserteddate DESC")
 if(nrow(commentstart) > 0)
 {
-  url.next <- paste(url.start,"&after=", gsub("t1_","",commentstart[1,1]), sep="")
+  url.next <- paste(url.start,"&after=", gsub("t1_","",commentstart[1,1]), 
+    sep="")
 } else {
   url.next <- url.start
 }
 total.data <- LoadData(url.next)
-dbWriteTable(devdb, name="Comments", total.data, append = T, overwrite = F)
+rows.written <- WriteData(total.data)
 while (nrow(tail(total.data["after"],1)) > 0) {
-    url.next <- paste(url.start,"&after=", gsub("t1_","",tail(total.data["after"],1)), sep="")
+    url.next <- paste(url.start,"&after=", gsub("t1_","",
+    tail(total.data["after"],1)), sep="")
     total.data <- LoadData(url.next)
-    idcheck <- dbGetQuery(devdb, paste("select id from Comments where id in (", paste("'",total.data$id,collapse="',",sep=""), "')",sep=""))
-    total.data <- anti_join(total.data, idcheck, by="id")
-    if (nrow(total.data) < 0)
+    rows.written <- WriteData(total.data)
+    if (rows.written < 1)
     {
-      dbWriteTable(devdb, name="Comments", total.data, append = T, overwrite = F)
+      total.data <- LoadData(url.start)
+      rows.written <- WriteData(total.data)
     }
-    # total.data <- rbind_list(total.data, LoadData(url.next))
-    # print(nrow(total.data))
   }
 # write.csv(total.data, paste("RedditYear",subreddit,"Comments.csv",sep=""))
-# View(total.data)
 dbDisconnect(devdb)
