@@ -8,11 +8,11 @@ setwd("D:/Users/Anthony/Documents/Springboard")
  devdb <- dbConnect(RSQLServer::SQLServer(), server="localhost", port=1433,
                   properties=list(user="rdata", password="password"))
 
- comments_raw <- dbGetQuery(devdb, "select top 100000 score_category, subreddit
+ comments_raw <- dbGetQuery(devdb, "select top 100000 score_category, 
                            body from Comments")
   #comments_raw <- read.csv("comments_sent.csv", stringsAsFactors = FALSE)
   names(comments_raw)[1] <- "score_category" #rename because csv is off
-  names(comments_raw)[3] <- "body"
+  names(comments_raw)[2] <- "body"
 
 # examine the structure of the comments data
 str(comments_raw)
