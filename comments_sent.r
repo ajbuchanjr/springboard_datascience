@@ -5,12 +5,12 @@ library(DBI)
 setwd("D:/Users/Anthony/Documents/Springboard")
 
 # read the comments data into the comments data frame
-# devdb <- dbConnect(RSQLServer::SQLServer(), server="localhost", port=1433,
-#                  properties=list(user="rdata", password="password"))
+ devdb <- dbConnect(RSQLServer::SQLServer(), server="localhost", port=1433,
+                  properties=list(user="rdata", password="password"))
 
-# comments_raw <- dbGetQuery(devdb, "select top 100000 score_category, subreddit
-#                           body from Comments")
-  comments_raw <- read.csv("comments_sent.csv", stringsAsFactors = FALSE)
+ comments_raw <- dbGetQuery(devdb, "select top 100000 score_category, subreddit
+                           body from Comments")
+  #comments_raw <- read.csv("comments_sent.csv", stringsAsFactors = FALSE)
   names(comments_raw)[1] <- "score_category" #rename because csv is off
   names(comments_raw)[3] <- "body"
 
@@ -33,7 +33,7 @@ print(comments_corpus)
 inspect(comments_corpus[1:3])
 
 # clean up the corpus using tm_map()
-corpus_clean <- tm_map(comments_corpus, tolower)
+corpus_clean <- tm_map(comments_corpus, content_transformer(tolower))
 corpus_clean <- tm_map(corpus_clean, removeNumbers)
 corpus_clean <- tm_map(corpus_clean, removeWords, stopwords())
 corpus_clean <- tm_map(corpus_clean, removePunctuation)
@@ -68,9 +68,9 @@ library(wordcloud)
 wordcloud(comments_corpus_train, min.freq = 30, random.order = FALSE)
 
 # subset the training data into spam and ham groups
-positive <- subset(comments_raw_train, type == "positive")
-neutral  <- subset(comments_raw_train, type == "neutral")
-negative  <- subset(comments_raw_train, type == "negative")
+positive <- subset(comments_raw_train, score_category == "positive")
+neutral  <- subset(comments_raw_train, score_category == "neutral")
+negative  <- subset(comments_raw_train, score_category == "negative")
 
 wordcloud(positive$body, max.words = 40, scale = c(3, 0.5))
 wordcloud(neutral$body, max.words = 40, scale = c(3, 0.5))
