@@ -68,9 +68,9 @@ library(wordcloud)
 wordcloud(comments_corpus_train, min.freq = 30, random.order = FALSE)
 
 # subset the training data into positive, neutral and negative groups
-positive <- subset(comments_raw_train, score_category == "positive")
-neutral  <- subset(comments_raw_train, score_category == "neutral")
-negative  <- subset(comments_raw_train, score_category == "negative")
+positive <- subset(comments_raw_train, score_category == "Positive")
+neutral  <- subset(comments_raw_train, score_category == "Neutral")
+negative  <- subset(comments_raw_train, score_category == "Negative")
 
 wordcloud(positive$body, max.words = 40, scale = c(3, 0.5))
 wordcloud(neutral$body, max.words = 40, scale = c(3, 0.5))
