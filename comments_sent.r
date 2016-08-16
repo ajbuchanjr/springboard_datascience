@@ -8,7 +8,7 @@ setwd("D:/Users/Anthony/Documents/Springboard")
  devdb <- dbConnect(RSQLServer::SQLServer(), server="localhost", port=1433,
                   properties=list(user="rdata", password="password"))
 
- comments_raw <- dbGetQuery(devdb, "select top 100000 score_category, 
+ comments_raw <- dbGetQuery(devdb, "select top 30000 score_category, 
                            body from Comments")
   #comments_raw <- read.csv("comments_sent.csv", stringsAsFactors = FALSE)
   names(comments_raw)[1] <- "score_category" #rename because csv is off
@@ -49,14 +49,14 @@ comments_dtm <- DocumentTermMatrix(corpus_clean)
 comments_dtm
 
 # creating training and test datasets
-comments_raw_train <- comments_raw[1:75000, ]
-comments_raw_test  <- comments_raw[75001:100000, ]
+comments_raw_train <- comments_raw[1:22500, ]
+comments_raw_test  <- comments_raw[22501:30000, ]
 
-comments_dtm_train <- comments_dtm[1:75000, ]
-comments_dtm_test  <- comments_dtm[75001:100000, ]
+comments_dtm_train <- comments_dtm[1:22500, ]
+comments_dtm_test  <- comments_dtm[22501:30000, ]
 
-comments_corpus_train <- corpus_clean[1:75000]
-comments_corpus_test  <- corpus_clean[75001:100000]
+comments_corpus_train <- corpus_clean[1:22500]
+comments_corpus_test  <- corpus_clean[22501:30000]
 
 # check that the proportion of score category is similar
 prop.table(table(comments_raw_train$score_category))
